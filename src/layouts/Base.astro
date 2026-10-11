@@ -1,0 +1,83 @@
+---
+/**
+ * Layout base: <head> con SEO, Open Graph, favicon y fuentes.
+ * Lo usan las dos páginas (/ y /en/).
+ */
+import '../styles/global.css';
+import { content, homePath, links, type Lang } from '../i18n/content';
+
+interface Props {
+  lang: Lang;
+}
+
+const { lang } = Astro.props;
+const t = content[lang];
+const otherLang: Lang = lang === 'es' ? 'en' : 'es';
+
+const site = Astro.site ?? new URL(Astro.url.origin);
+const canonical = new URL(homePath[lang], site).href;
+const ogImage = new URL('/og-image.png', site).href;
+
+// Datos estructurados (schema.org) para buscadores
+const jsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'Person',
+  name: 'Lydia Vílchez López',
+  jobTitle: 'Cloud Security Engineer',
+  url: canonical,
+  address: { '@type': 'PostalAddress', addressLocality: 'Santander', addressCountry: 'ES' },
+  sameAs: [links.linkedin, links.github],
+  knowsLanguage: ['es', 'en', 'fr', 'it'],
+};
+---
+
+<!doctype html>
+<html lang={lang}>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{t.meta.title}</title>
+    <meta name="description" content={t.meta.description} />
+    <meta name="author" content="Lydia Vílchez López" />
+    <meta name="theme-color" content="#0d0d0f" />
+    <link rel="canonical" href={canonical} />
+
+    <!-- Versiones por idioma -->
+    <link rel="alternate" hreflang="es" href={new URL(homePath.es, site).href} />
+    <link rel="alternate" hreflang="en" href={new URL(homePath.en, site).href} />
+    <link rel="alternate" hreflang="x-default" href={new URL(homePath.es, site).href} />
+
+    <!-- Favicon con las iniciales -->
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+
+    <!-- Open Graph (LinkedIn, WhatsApp, Slack…) -->
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="Lydia Vílchez López" />
+    <meta property="og:title" content={t.meta.title} />
+    <meta property="og:description" content={t.meta.description} />
+    <meta property="og:url" content={canonical} />
+    <meta property="og:image" content={ogImage} />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:alt" content={t.meta.ogImageAlt} />
+    <meta property="og:locale" content={t.meta.locale} />
+    <meta property="og:locale:alternate" content={content[otherLang].meta.locale} />
+    <meta name="twitter:card" content="summary_large_image" />
+
+    <!-- Fuentes críticas (titulares y texto) -->
+    <link rel="preload" href="/fonts/fraunces-latin-full-normal.woff2" as="font" type="font/woff2" crossorigin />
+    <link rel="preload" href="/fonts/inter-latin-wght-normal.woff2" as="font" type="font/woff2" crossorigin />
+
+    <script type="application/ld+json" set:html={JSON.stringify(jsonLd)} />
+
+    <!-- Marca que hay JS antes de pintar, para que las animaciones no parpadeen -->
+    <script is:inline>document.documentElement.classList.add('js');</script>
+  </head>
+  <body>
+    <slot />
+    <script>
+      import '../scripts/main.ts';
+    </script>
+  </body>
+</html>

@@ -1,0 +1,205 @@
+---
+/**
+ * 03 · Proyectos: lista a todo el ancho estilo DEPT.
+ * Al pasar el ratón (o con el foco del teclado) la fila se rellena de azul.
+ */
+import SectionHead from './SectionHead.astro';
+import { content, links, rich, type Lang } from '../i18n/content';
+
+interface Props {
+  lang: Lang;
+}
+const { lang } = Astro.props;
+const t = content[lang].projects;
+
+// Resuelve el enlace de cada proyecto. Si aún es un [hueco], no se muestra como enlace.
+const resolveLink = (key: string | null) => {
+  if (!key) return null;
+  const url = links[key as keyof typeof links];
+  return { url, pending: url.startsWith('[') };
+};
+---
+
+<section id="proyectos" class="projects" aria-labelledby="projects-title">
+  <div class="container">
+    <SectionHead num={3} label={t.kicker} />
+    <h2 id="projects-title" class="section-title display reveal" set:html={rich(t.title)} />
+  </div>
+
+  <ol class="project-list">
+    {
+      t.items.map((p, i) => {
+        const link = resolveLink(p.link);
+        return (
+          <li class="project reveal">
+            <div class="project__inner container">
+              <div class="project__top">
+                <span class="project__num mono">{String(i + 1).padStart(2, '0')}</span>
+                <h3 class="project__title display">{p.title}</h3>
+                <span class="project__year mono">{p.year}</span>
+              </div>
+
+              <div class="project__body">
+                <ul class="tags">
+                  {p.tags.map((tag) => <li class="tag">{tag}</li>)}
+                </ul>
+
+                <dl class="project__cols">
+                  <div>
+                    <dt class="mono">{t.labels.context}</dt>
+                    <dd>{p.context}</dd>
+                  </div>
+                  <div>
+                    <dt class="mono">{t.labels.did}</dt>
+                    <dd>{p.did}</dd>
+                  </div>
+                  <div>
+                    <dt class="mono">{t.labels.result}</dt>
+                    <dd>{p.result}</dd>
+                  </div>
+                </dl>
+
+                {link &&
+                  (link.pending ? (
+                    <p class="project__link mono">
+                      {t.labels.readArticle} — {link.url}
+                    </p>
+                  ) : (
+                    <a class="project__link mono" href={link.url} target="_blank" rel="noopener noreferrer">
+                      {t.labels.readArticle} <span aria-hidden="true">↗</span>
+                    </a>
+                  ))}
+              </div>
+            </div>
+          </li>
+        );
+      })
+    }
+
+  </ol>
+</section>
+
+<style>
+  .projects {
+    padding-block: var(--section-space);
+  }
+  .projects .section-title {
+    margin-bottom: clamp(2.5rem, 6vw, 5rem);
+  }
+
+  .project-list {
+    border-top: 1px solid var(--line);
+  }
+
+  .project {
+    position: relative;
+    border-bottom: 1px solid var(--line);
+    isolation: isolate;
+  }
+  /* Capa azul que sube al pasar el ratón */
+  .project::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    background: var(--accent-fill);
+    transform: scaleY(0);
+    transform-origin: bottom;
+    transition: transform 0.6s var(--ease);
+  }
+
+  .project__inner {
+    padding-block: clamp(2rem, 4vw, 3.5rem);
+  }
+
+  .project__top {
+    display: grid;
+    grid-template-columns: 2.5rem 1fr;
+    gap: 0.5rem 1rem;
+    align-items: baseline;
+  }
+  .project__num,
+  .project__year {
+    color: var(--accent);
+  }
+  .project__year {
+    grid-column: 2;
+  }
+  @media (min-width: 760px) {
+    .project__top {
+      grid-template-columns: 4rem 1fr auto;
+    }
+    .project__year {
+      grid-column: auto;
+    }
+  }
+
+  .project__title {
+    font-size: clamp(1.8rem, 4.2vw, 4rem);
+    line-height: 0.98;
+    max-width: 22ch;
+    transition: transform 0.6s var(--ease);
+  }
+
+  .project__body {
+    display: grid;
+    gap: 1.75rem;
+    margin-top: 1.75rem;
+  }
+  @media (min-width: 760px) {
+    .project__body {
+      padding-left: 5rem;
+    }
+  }
+
+  .project__cols {
+    display: grid;
+    gap: 1.25rem 2.5rem;
+  }
+  @media (min-width: 1000px) {
+    .project__cols {
+      grid-template-columns: repeat(3, 1fr);
+    }
+  }
+  .project__cols dt {
+    color: var(--accent);
+    margin-bottom: 0.4rem;
+  }
+  .project__cols dd {
+    color: var(--muted);
+    font-size: 0.98rem;
+  }
+
+  .project__link {
+    justify-self: start;
+    color: var(--accent);
+    text-decoration: none;
+    border-bottom: 1px solid currentColor;
+    padding-bottom: 0.2rem;
+  }
+
+  /* --- Estado activo (hover o foco dentro de la fila) --- */
+  .project:focus-within::before {
+    transform: scaleY(1);
+  }
+  @media (hover: hover) {
+    .project:hover::before {
+      transform: scaleY(1);
+    }
+  }
+  .project:is(:hover, :focus-within) :is(.project__title, .project__num, .project__year, dt, dd, .project__link, .tag) {
+    color: var(--on-accent);
+  }
+  .project:is(:hover, :focus-within) .tag {
+    border-color: color-mix(in srgb, var(--on-accent) 40%, transparent);
+  }
+  .project:is(:hover, :focus-within) .project__title {
+    transform: translateX(0.25em);
+  }
+  .project :is(.project__title, .project__num, .project__year, dt, dd, .project__link) {
+    transition:
+      color 0.35s,
+      transform 0.6s var(--ease);
+  }
+
+</style>

@@ -1,0 +1,166 @@
+---
+/**
+ * 05 · Contacto: bloque azul a todo el ancho.
+ * El correo se muestra en grande y es un enlace mailto.
+ */
+import { content, links, rich, type Lang } from '../i18n/content';
+
+interface Props {
+  lang: Lang;
+}
+const { lang } = Astro.props;
+const t = content[lang].contact;
+---
+
+<section id="contacto" class="contact" aria-labelledby="contact-title">
+  <div class="container">
+    <div class="contact__head mono reveal">
+      <span>§ 07 — {t.kicker}</span>
+      <span class="contact__status">
+        <span class="dot" aria-hidden="true"></span>
+        {content[lang].hero.status}
+      </span>
+    </div>
+
+    <h2 id="contact-title" class="contact__title display reveal" set:html={rich(t.title)} />
+
+    <a class="contact__email reveal" href={`mailto:${links.email}`}>{links.email}</a>
+
+    <div class="contact__bottom">
+      <p class="contact__text reveal">{t.text}</p>
+
+      <ul class="contact__links reveal" style="--delay:.1s">
+        <li>
+          <a class="btn btn--dark" href={`mailto:${links.email}`}>
+            {t.email} <span class="arrow" aria-hidden="true">↗</span>
+          </a>
+        </li>
+        <li>
+          <a class="btn btn--outline" href={links.linkedin} target="_blank" rel="noopener noreferrer">
+            {t.linkedin} <span class="arrow" aria-hidden="true">↗</span>
+          </a>
+        </li>
+        <li>
+          <a class="btn btn--outline" href={links.github} target="_blank" rel="noopener noreferrer">
+            {t.github} <span class="arrow" aria-hidden="true">↗</span>
+          </a>
+        </li>
+        <li>
+          <a class="btn btn--outline" href={links.cv} download>
+            {t.cv} <span class="arrow" aria-hidden="true">↓</span>
+          </a>
+        </li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<style>
+  .contact {
+    background: var(--accent-fill);
+    color: var(--on-accent);
+    padding-block: clamp(5rem, 12vw, 10rem) clamp(3rem, 6vw, 5rem);
+  }
+  .contact ::selection {
+    background: var(--on-accent);
+    color: var(--accent-fill);
+  }
+  .contact :focus-visible {
+    outline-color: var(--on-accent);
+  }
+
+  .contact__head {
+    display: flex;
+    justify-content: space-between;
+    gap: 1rem;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid color-mix(in srgb, var(--on-accent) 30%, transparent);
+  }
+  .contact__status {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.6rem;
+  }
+  .dot {
+    width: 0.55rem;
+    height: 0.55rem;
+    border-radius: 50%;
+    background: var(--on-accent);
+  }
+
+  .contact__title {
+    /* en móviles pequeños baja de tamaño para que "¿HABLAMOS?" quepa en una línea */
+    font-size: clamp(2.6rem, 16vw, 16rem);
+    font-weight: 300;
+    line-height: 0.88;
+    margin-block: clamp(2.5rem, 7vw, 5rem) clamp(1.5rem, 3vw, 2.5rem);
+  }
+  @media (min-width: 700px) {
+    .contact__title {
+      font-size: clamp(4rem, 17vw, 16rem);
+    }
+  }
+  /* En el bloque azul, la palabra destacada va en oscuro */
+  .contact__title :global(em) {
+    color: var(--on-accent);
+  }
+
+  .contact__email {
+    display: inline-block;
+    font-family: var(--font-display);
+    font-variation-settings: 'opsz' 72;
+    font-style: italic;
+    font-weight: 350;
+    font-size: clamp(1.35rem, 4.2vw, 3.4rem);
+    line-height: 1.1;
+    overflow-wrap: anywhere;
+    text-decoration: none;
+    border-bottom: 2px solid currentColor;
+    margin-bottom: clamp(2.5rem, 6vw, 4.5rem);
+    transition: opacity 0.2s;
+  }
+  .contact__email:hover {
+    opacity: 0.7;
+  }
+
+  .contact__bottom {
+    display: grid;
+    gap: 2rem;
+    align-items: end;
+  }
+  @media (min-width: 900px) {
+    .contact__bottom {
+      grid-template-columns: 1fr 1.3fr;
+      gap: 4rem;
+    }
+  }
+  .contact__text {
+    max-width: 36ch;
+    font-size: clamp(1.05rem, 1rem + 0.4vw, 1.3rem);
+  }
+
+  .contact__links {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+  }
+  @media (min-width: 900px) {
+    .contact__links {
+      justify-content: flex-end;
+    }
+  }
+  .btn--dark {
+    background: var(--on-accent);
+    border-color: var(--on-accent);
+    color: var(--accent-fill);
+  }
+  .btn--dark:hover {
+    background: var(--text);
+    border-color: var(--text);
+    color: var(--on-accent);
+  }
+  .btn--outline:hover {
+    background: var(--on-accent);
+    color: var(--accent-fill);
+  }
+</style>

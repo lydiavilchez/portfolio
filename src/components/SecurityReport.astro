@@ -1,0 +1,253 @@
+---
+/**
+ * 06 · Informe de seguridad "de tu visita".
+ * Un guiño al trabajo en Prowler: comprobaciones con PASS / FAIL.
+ * - Sin JS o con movimiento reducido: se ve el resultado final directamente.
+ * - Con JS: las comprobaciones se "ejecutan" una a una al llegar con el scroll.
+ * - Al pulsar "Escríbeme", el FAIL pasa a PASS (y se recuerda en ese navegador).
+ * La lógica está en src/scripts/main.ts (sección 3).
+ */
+import SectionHead from './SectionHead.astro';
+import { content, links, rich, type Lang } from '../i18n/content';
+
+interface Props {
+  lang: Lang;
+}
+const { lang } = Astro.props;
+const t = content[lang].report;
+const total = t.checks.length + 1;
+---
+
+<section id="informe" class="report container" aria-labelledby="report-title" data-report>
+  <SectionHead num={6} label={t.kicker} />
+
+  <div class="report__intro">
+    <h2 id="report-title" class="section-title display reveal" set:html={rich(t.title)} />
+    <p class="reveal">{t.intro}</p>
+  </div>
+
+  <div class="report__table reveal" role="table" aria-label={t.kicker}>
+    <div class="report__meta mono">
+      <span>{t.meta}</span>
+      <span class="report__summary" aria-live="polite" data-report-summary data-total={total}>
+        <b class="pass">{t.checks.length} PASS</b> · <b class="fail">1 FAIL</b>
+      </span>
+    </div>
+
+    <div class="row row--head mono" role="row">
+      <span role="columnheader">{t.columns.check}</span>
+      <span role="columnheader">{t.columns.status}</span>
+      <span role="columnheader">{t.columns.detail}</span>
+    </div>
+
+    {
+      t.checks.map((c) => (
+        <div class="row" role="row" data-check>
+          <code class="row__id" role="cell">{c.id}</code>
+          <span class="row__status" role="cell">
+            <span class="pill pill--pass">PASS</span>
+            <span class="pill pill--running mono">{t.running}</span>
+          </span>
+          <p class="row__detail" role="cell">{c.detail}</p>
+        </div>
+      ))
+    }
+
+    <!-- La comprobación que falla… hasta que me escribes -->
+    <div class="row row--fail" role="row" data-check data-contact-check>
+      <code class="row__id" role="cell">{t.contactCheck.id}</code>
+      <span class="row__status" role="cell">
+        <span class="pill pill--fail">FAIL</span>
+        <span class="pill pill--pass pill--resolved">PASS</span>
+        <span class="pill pill--running mono">{t.running}</span>
+      </span>
+      <div class="row__detail" role="cell">
+        <p class="row__todo">
+          {t.contactCheck.detail}
+          <a class="btn btn--primary btn--small" href={`mailto:${links.email}`} data-contact-fix>
+            {t.contactCheck.action} <span class="arrow" aria-hidden="true">↗</span>
+          </a>
+        </p>
+        <p class="row__done">{t.contactCheck.resolved}</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<style>
+  .report {
+    padding-block: var(--section-space);
+  }
+  .report__intro {
+    display: grid;
+    gap: 1.5rem;
+    margin-bottom: clamp(2.5rem, 6vw, 4.5rem);
+  }
+  .report__intro p {
+    color: var(--muted);
+    max-width: 42ch;
+  }
+  @media (min-width: 1000px) {
+    .report__intro {
+      grid-template-columns: 1.4fr 1fr;
+      align-items: end;
+    }
+  }
+
+  .report__table {
+    border: 1px solid var(--line);
+    border-radius: 4px;
+    background: var(--surface);
+  }
+  .report__meta {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    gap: 0.5rem 2rem;
+    padding: 1rem clamp(1rem, 3vw, 2rem);
+    border-bottom: 1px solid var(--line);
+    color: var(--muted);
+  }
+  .report__summary b {
+    font-weight: 400;
+  }
+  .report__summary .pass {
+    color: var(--accent);
+  }
+  .report__summary .fail {
+    color: var(--fail);
+  }
+
+  .row {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    grid-template-areas: 'id status' 'detail detail';
+    gap: 0.6rem 1.5rem;
+    align-items: center;
+    padding: 1.25rem clamp(1rem, 3vw, 2rem);
+    border-bottom: 1px solid var(--line);
+  }
+  .row:last-child {
+    border-bottom: 0;
+  }
+  @media (min-width: 900px) {
+    .row {
+      grid-template-columns: minmax(16rem, 1.1fr) 8.5rem 1.6fr;
+      grid-template-areas: 'id status detail';
+    }
+  }
+  .row--head {
+    display: none;
+    color: var(--muted);
+    padding-block: 0.8rem;
+  }
+  @media (min-width: 900px) {
+    .row--head {
+      display: grid;
+    }
+  }
+  .row--head span:nth-child(1) {
+    grid-area: id;
+  }
+  .row--head span:nth-child(2) {
+    grid-area: status;
+  }
+  .row--head span:nth-child(3) {
+    grid-area: detail;
+  }
+
+  .row__id {
+    grid-area: id;
+    font-family: var(--font-mono);
+    font-size: clamp(0.78rem, 0.75rem + 0.2vw, 0.9rem);
+    overflow-wrap: anywhere;
+  }
+  .row__status {
+    grid-area: status;
+  }
+  .row__detail {
+    grid-area: detail;
+    color: var(--muted);
+  }
+  .row__detail p {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.75rem;
+  }
+
+  .pill {
+    display: inline-block;
+    font-family: var(--font-mono);
+    font-size: 0.72rem;
+    letter-spacing: 0.1em;
+    padding: 0.35rem 0.7rem;
+    border-radius: 999px;
+    border: 1px solid currentColor;
+    white-space: nowrap;
+  }
+  .pill--pass {
+    color: var(--accent);
+  }
+  .pill--fail {
+    color: var(--fail);
+  }
+  .btn--small {
+    padding: 0.65rem 1.1rem;
+    font-size: 0.72rem;
+  }
+
+  /* --- Estados ---
+     Por defecto (sin JS): resultado final.
+     data-state="running": "Comprobando…" · data-state="resolved": FAIL corregido. */
+  .row .pill--running,
+  .row .pill--resolved,
+  .row__detail .row__done {
+    display: none;
+  }
+  .row[data-state='pending'] .row__status,
+  .row[data-state='pending'] .row__detail {
+    visibility: hidden;
+  }
+  .row[data-state='running'] .row__status > :not(.pill--running),
+  .row[data-state='running'] .row__detail {
+    display: none;
+  }
+  .row[data-state='running'] .row__status .pill--running {
+    display: inline-block;
+    color: var(--muted);
+    border-style: dashed;
+    animation: blink 0.8s steps(2) infinite;
+  }
+  .row--fail[data-state='resolved'] .pill--fail,
+  .row--fail[data-state='resolved'] .row__detail .row__todo {
+    display: none;
+  }
+  .row--fail[data-state='resolved'] .pill--resolved,
+  .row--fail[data-state='resolved'] .row__detail .row__done {
+    display: inline-block;
+  }
+  .row--fail[data-state='resolved'] .row__done {
+    color: var(--text);
+  }
+  .row--fail:not([data-state='resolved']):not([data-state='pending']):not([data-state='running']) {
+    background: color-mix(in srgb, var(--fail) 7%, transparent);
+  }
+
+  /* Al aparecer cada resultado, un pequeño destello */
+  .row[data-state='done'] .pill,
+  .row[data-state='resolved'] .pill {
+    animation: pop 0.4s var(--ease);
+  }
+  @keyframes pop {
+    from {
+      transform: scale(0.8);
+      opacity: 0;
+    }
+  }
+  @keyframes blink {
+    50% {
+      opacity: 0.35;
+    }
+  }
+</style>

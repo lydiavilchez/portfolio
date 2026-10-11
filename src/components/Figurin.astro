@@ -1,0 +1,197 @@
+---
+/**
+ * Figurín: boceto de moda a línea de Lydia (basado en una foto).
+ * Pelo largo ondulado, vestido de escote drapeado
+ * con bordado floral y las manos juntas.
+ * - Los trazos se dibujan solos al entrar en pantalla (stroke-dashoffset).
+ * - Con prefers-reduced-motion se muestra ya dibujado.
+ * Coordenadas: figura centrada en x=180 y desplazada +120 dentro de un lienzo
+ * de 600×920 (el aire a los lados le da su tamaño en la página).
+ */
+import { content, type Lang } from '../i18n/content';
+
+interface Props {
+  lang: Lang;
+}
+const { lang } = Astro.props;
+const t = content[lang].about.figure;
+
+/** Flor de 5 pétalos (el bordado del vestido) como un único path. */
+const flower = (cx: number, cy: number, r = 5) => {
+  let d = '';
+  for (let k = 0; k < 5; k++) {
+    const a = (k * 2 * Math.PI) / 5 - Math.PI / 2;
+    const x = cx + Math.cos(a) * r;
+    const y = cy + Math.sin(a) * r;
+    const pr = r * 0.62;
+    d += `M${(x + pr).toFixed(1)},${y.toFixed(1)} a${pr},${pr} 0 1,0 ${-2 * pr},0 a${pr},${pr} 0 1,0 ${2 * pr},0 `;
+  }
+  return d;
+};
+
+// Trazos en tinta (orden = orden de dibujo)
+const ink = [
+  // Rostro
+  'M152,84 C148,104 148,124 158,140 C166,149 173,153 180,153 C187,153 194,149 202,140 C212,124 212,104 208,84',
+  // Cejas
+  'M158,93 Q165,88 173,91',
+  'M187,91 Q195,88 202,93',
+  // Ojos (sonriendo)
+  'M160,104 Q166,99 172,104',
+  'M188,104 Q194,99 200,104',
+  // Nariz
+  'M181,105 L178,121 Q181,124 185,121',
+  // Sonrisa
+  'M166,131 Q180,145 194,131',
+  'M168,132.5 Q180,137 192,132.5',
+  // Pelo: volumen superior, raya al medio y nacimiento del pelo
+  'M146,92 C138,52 160,30 180,30 C200,30 222,52 214,92',
+  'M180,31 C178,40 176,46 170,54',
+  'M180,38 C168,46 156,60 152,84',
+  'M180,38 C192,46 204,60 208,84',
+  // Pelo largo ondulado a la izquierda (exterior, interior y punta)
+  'M146,92 C140,128 128,150 132,182 C136,212 120,236 126,266 C132,296 116,322 124,350 C126,358 124,364 118,370',
+  'M157,138 C160,170 150,192 154,218 C158,246 146,272 152,300 C157,326 146,346 150,362 C146,368 138,372 130,372',
+  'M118,370 C122,374 126,374 130,372',
+  // Pelo largo ondulado a la derecha
+  'M214,92 C220,128 232,150 228,182 C224,212 240,236 234,266 C228,296 244,322 236,350 C234,358 236,364 242,370',
+  'M203,138 C200,170 210,192 206,218 C202,246 214,272 208,300 C203,326 214,346 210,362 C214,368 222,372 230,372',
+  'M242,370 C238,374 234,374 230,372',
+  // Cuello y clavículas
+  'M171,150 C172,165 171,178 168,190 C162,193 158,194 155,195',
+  'M189,150 C188,165 189,178 192,190 C198,193 202,194 205,195',
+  'M160,206 Q168,209 175,206',
+  'M185,206 Q192,209 200,206',
+  // Escote drapeado (pliegues)
+  'M154,220 C160,285 200,285 206,220',
+  'M153,252 C165,305 195,305 207,252',
+  'M152,288 C166,330 194,330 208,288',
+  // Brazos (hombro → codo → manos juntas en la cintura)
+  'M134,190 C120,190 110,200 109,224 C107,255 107,300 112,335 C116,365 124,385 134,400 C145,415 160,425 174,428',
+  'M226,190 C240,190 250,200 251,224 C253,255 253,300 248,335 C244,365 236,385 226,400 C215,415 200,425 186,428',
+  'M129,374 C133,384 137,390 142,396 C152,405 163,410 176,410',
+  'M231,374 C227,384 223,390 218,396 C208,405 197,410 184,410',
+  // Manos
+  'M176,410 C170,414 170,424 174,428 C178,433 182,433 186,428 C190,424 190,414 184,410',
+  'M177,417 Q181,414 185,418',
+  'M177,422 Q181,419 185,423',
+  // Vestido: talle, cadera y falda
+  'M146,372 C144,384 146,396 150,404',
+  'M214,372 C216,384 214,396 210,404',
+  'M152,430 C146,460 138,500 136,540 C134,620 132,720 126,830',
+  'M208,430 C214,460 222,500 224,540 C226,620 228,720 234,830',
+  'M126,830 C150,843 210,843 234,830',
+  // Piernas y zapatos de tacón
+  'M158,839 L157,882 L150,896 L173,894 L171,880 L172,840',
+  'M190,840 L191,880 L189,894 L212,896 L205,882 L204,839',
+];
+
+// Trazos finos (caída del tejido y ondas del pelo)
+const fine = [
+  'M170,440 C166,560 172,700 162,832',
+  'M194,444 C198,580 192,720 204,836',
+  'M140,110 C134,150 146,180 138,215',
+  'M136,240 C142,262 130,285 138,310',
+  'M134,318 C140,335 132,350 138,362',
+  'M220,110 C226,150 214,180 222,215',
+  'M224,240 C218,262 230,285 222,310',
+  'M226,318 C220,335 228,350 222,362',
+];
+
+// Bordado (en azul)
+const embroidery = [
+  flower(160, 470),
+  flower(198, 520, 4.5),
+  flower(150, 600),
+  flower(207, 650),
+  flower(170, 710, 4.5),
+  flower(214, 770),
+  flower(146, 790, 4.5),
+  'M160,476 C166,500 186,500 194,520',
+  'M150,606 C158,630 196,628 205,646',
+  'M172,716 C180,740 206,746 212,766',
+];
+
+// Mancha de acuarela azul detrás del vestido (ligeramente desplazada, como un boceto)
+const wash =
+  'M154,222 C162,300 198,300 206,222 L212,300 C216,340 214,380 212,404 C214,460 222,500 224,540 C226,620 228,720 234,830 C210,843 150,843 126,830 C132,720 134,620 136,540 C138,500 146,460 148,404 C146,380 144,340 148,300 Z';
+
+// Relleno tonal de la melena (opaco, tapa la acuarela del vestido)
+const hair = [
+  'M180,30 C160,30 138,52 146,92 C140,128 128,150 132,182 C136,212 120,236 126,266 C132,296 116,322 124,350 C126,358 124,364 118,370 C122,374 126,374 130,372 C138,372 146,368 150,362 C146,346 157,326 152,300 C146,272 158,246 154,218 C150,192 160,170 157,138 L158,140 C148,124 148,104 152,84 C156,60 168,46 180,38 Z',
+  'M180,30 C200,30 222,52 214,92 C220,128 232,150 228,182 C224,212 240,236 234,266 C228,296 244,322 236,350 C234,358 236,364 242,370 C238,374 234,374 230,372 C222,372 214,368 210,362 C214,346 203,326 208,300 C214,272 202,246 206,218 C210,192 200,170 203,138 L202,140 C212,124 212,104 208,84 C204,60 192,46 180,38 Z',
+];
+---
+
+<figure class="figurin reveal">
+  <svg viewBox="0 0 600 920" role="img" aria-labelledby="figurin-title">
+    <title id="figurin-title">{t.alt}</title>
+    <g transform="translate(120,0)">
+      <path class="figurin__wash" d={wash} transform="translate(7,5)" />
+      {hair.map((d) => <path class="figurin__hair" d={d} />)}
+      {fine.map((d, i) => <path class="draw fine" d={d} pathLength="1" style={`--i:${i + 6}`} />)}
+      {ink.map((d, i) => <path class="draw" d={d} pathLength="1" style={`--i:${i}`} />)}
+      {embroidery.map((d, i) => <path class="draw embroidery" d={d} pathLength="1" style={`--i:${i + 30}`} />)}
+    </g>
+  </svg>
+</figure>
+
+<style>
+  .figurin {
+    width: 100%;
+    max-width: 680px;
+    margin-inline: auto;
+  }
+  .figurin svg {
+    width: 100%;
+    height: auto;
+    overflow: visible;
+  }
+
+  .draw {
+    fill: none;
+    stroke: var(--text);
+    stroke-width: 1.6;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+  }
+  .draw.fine {
+    stroke-width: 1;
+    opacity: 0.45;
+  }
+  .draw.embroidery {
+    stroke: var(--accent);
+    stroke-width: 1.2;
+  }
+  .figurin__wash {
+    fill: var(--accent-fill);
+    opacity: 0.45;
+  }
+  .figurin__hair {
+    fill: color-mix(in srgb, #7a5638 30%, var(--bg)); /* castaño suave */
+  }
+
+  /* Animación de dibujo: solo con JS y sin movimiento reducido */
+  @media (prefers-reduced-motion: no-preference) {
+    :global(.js) .figurin .draw {
+      stroke-dasharray: 1;
+      stroke-dashoffset: 1;
+      transition: stroke-dashoffset 1.4s cubic-bezier(0.65, 0, 0.35, 1);
+      transition-delay: calc(var(--i) * 0.07s);
+    }
+    :global(.js) .figurin.is-in .draw {
+      stroke-dashoffset: 0;
+    }
+    :global(.js) .figurin .figurin__wash,
+    :global(.js) .figurin .figurin__hair {
+      opacity: 0;
+      transition: opacity 1s ease 2s;
+    }
+    :global(.js) .figurin.is-in .figurin__wash {
+      opacity: 0.45;
+    }
+    :global(.js) .figurin.is-in .figurin__hair {
+      opacity: 1;
+    }
+  }
+</style>

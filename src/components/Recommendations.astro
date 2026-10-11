@@ -1,0 +1,178 @@
+---
+/**
+ * 04 · Recomendaciones: citas de cartas de recomendación.
+ * La primera cita de cada persona se muestra en grande; el resto, al lado de su firma.
+ * Los datos están en `recommendations` dentro de src/i18n/content.ts.
+ */
+import SectionHead from './SectionHead.astro';
+import { content, rich, type Lang } from '../i18n/content';
+
+interface Props {
+  lang: Lang;
+}
+const { lang } = Astro.props;
+const t = content[lang].recommendations;
+---
+
+<section id="recomendaciones" class="recs container" aria-labelledby="recs-title">
+  <SectionHead num={4} label={t.kicker} />
+
+  <div class="recs__intro">
+    <h2 id="recs-title" class="section-title display reveal" set:html={rich(t.title)} />
+    <p class="reveal">{t.intro}</p>
+  </div>
+
+  {
+    t.items.map((r) => {
+      const [lead, ...rest] = r.quotes;
+      return (
+        <article class="rec">
+          <blockquote class="rec__lead reveal">
+            <span class="rec__mark" aria-hidden="true">“</span>
+            <p>{lead}</p>
+          </blockquote>
+
+          <div class="rec__grid">
+            <footer class="rec__author reveal">
+              <p class="rec__name">
+                <a class="link" href={r.linkedin} target="_blank" rel="noopener noreferrer">
+                  {r.name} <span class="visually-hidden">({t.linkedin})</span>
+                  <span aria-hidden="true">↗</span>
+                </a>
+              </p>
+              <p class="rec__role">{r.role}</p>
+              <p class="rec__date mono">{r.date}</p>
+              {r.letter && (
+                <a class="rec__letter mono" href={r.letter} target="_blank" rel="noopener">
+                  {t.letter} <span aria-hidden="true">↗</span>
+                </a>
+              )}
+            </footer>
+
+            <ul class="rec__quotes">
+              {rest.map((q, i) => (
+                <li class="reveal" style={`--delay:${i * 0.08}s`}>
+                  <p>“{q}”</p>
+                </li>
+              ))}
+            </ul>
+          </div>
+        </article>
+      );
+    })
+  }
+</section>
+
+<style>
+  .recs {
+    padding-block: var(--section-space);
+  }
+  .recs__intro {
+    display: grid;
+    gap: 1.5rem;
+    margin-bottom: clamp(3rem, 7vw, 6rem);
+  }
+  .recs__intro p {
+    color: var(--muted);
+    max-width: 40ch;
+  }
+  @media (min-width: 1000px) {
+    .recs__intro {
+      grid-template-columns: 1.4fr 1fr;
+      align-items: end;
+    }
+  }
+
+  .rec + .rec {
+    margin-top: clamp(5rem, 10vw, 8rem);
+  }
+
+  /* Cita principal, en grande */
+  .rec__lead {
+    position: relative;
+    padding-left: clamp(0rem, 6vw, 6rem);
+    margin-bottom: clamp(2.5rem, 6vw, 4.5rem);
+  }
+  .rec__mark {
+    display: block;
+    font-family: var(--font-display);
+    font-variation-settings: 'opsz' 144;
+    font-size: clamp(6rem, 14vw, 12rem);
+    line-height: 0.6;
+    color: var(--accent);
+    height: 0.45em;
+  }
+  @media (min-width: 900px) {
+    .rec__mark {
+      position: absolute;
+      left: 0;
+      top: 0.15em;
+    }
+  }
+  .rec__lead p {
+    font-family: var(--font-display);
+    font-variation-settings: 'opsz' 144;
+    font-style: italic;
+    font-weight: 300;
+    font-size: clamp(1.9rem, 4.4vw, 4.2rem);
+    line-height: 1.08;
+    letter-spacing: -0.01em;
+    max-width: 24ch;
+  }
+
+  .rec__grid {
+    display: grid;
+    gap: 2.5rem;
+    border-top: 1px solid var(--line);
+    padding-top: clamp(1.75rem, 3vw, 2.5rem);
+  }
+  @media (min-width: 900px) {
+    .rec__grid {
+      grid-template-columns: 1fr 2fr;
+      gap: clamp(3rem, 6vw, 6rem);
+    }
+  }
+
+  .rec__name {
+    font-family: var(--font-display);
+    font-variation-settings: 'opsz' 48;
+    font-size: clamp(1.4rem, 2.2vw, 1.9rem);
+    line-height: 1.15;
+    margin-bottom: 0.5rem;
+  }
+  .rec__role {
+    margin-bottom: 0.75rem;
+  }
+  .rec__date {
+    color: var(--muted);
+  }
+  .rec__letter {
+    display: inline-block;
+    margin-top: 1.25rem;
+    color: var(--accent);
+    text-decoration: none;
+    border-bottom: 1px solid currentColor;
+    padding-bottom: 0.2rem;
+  }
+
+  .rec__quotes {
+    display: grid;
+    gap: 1.75rem;
+  }
+  @media (min-width: 1100px) {
+    .rec__quotes {
+      grid-template-columns: repeat(auto-fit, minmax(14rem, 1fr));
+    }
+  }
+  .rec__quotes li {
+    border-left: 1px solid var(--accent);
+    padding-left: 1.25rem;
+  }
+  .rec__quotes p {
+    font-family: var(--font-display);
+    font-variation-settings: 'opsz' 36;
+    font-style: italic;
+    font-size: 1.12rem;
+    line-height: 1.45;
+  }
+</style>

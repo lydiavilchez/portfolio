@@ -1,0 +1,40 @@
+---
+/** Pie de página */
+import { content, links, type Lang } from '../i18n/content';
+
+interface Props {
+  lang: Lang;
+}
+const { lang } = Astro.props;
+const t = content[lang].footer;
+const year = new Date().getFullYear();
+---
+
+<footer class="footer">
+  <div class="footer__inner container mono">
+    <span>© {year} {t.rights}</span>
+    <a class="footer__email" href={`mailto:${links.email}`}>{links.email}</a>
+    <a href="#top">{t.backToTop} ↑</a>
+  </div>
+</footer>
+
+<style>
+  .footer__inner {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    gap: 1rem 2rem;
+    padding-block: 2rem;
+    color: var(--muted);
+  }
+  .footer a {
+    text-decoration: none;
+    transition: color 0.2s;
+  }
+  .footer a:hover {
+    color: var(--accent);
+  }
+  .footer__email {
+    text-transform: none; /* el correo, tal cual */
+  }
+</style>

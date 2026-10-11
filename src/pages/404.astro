@@ -1,0 +1,30 @@
+---
+// Página 404 sencilla
+import Base from '../layouts/Base.astro';
+---
+
+<Base lang="es">
+  <main class="nf container">
+    <p class="mono">Error 404</p>
+    <h1 class="display">Página <em>no encontrada</em></h1>
+    <a class="btn btn--primary" href="/">Volver al inicio <span class="arrow" aria-hidden="true">↗</span></a>
+  </main>
+</Base>
+
+<style>
+  .nf {
+    min-height: 100svh;
+    display: grid;
+    align-content: center;
+    gap: 2rem;
+  }
+  .nf .mono {
+    color: var(--accent);
+  }
+  .nf h1 {
+    font-size: clamp(3rem, 11vw, 9rem);
+  }
+  .nf .btn {
+    justify-self: start;
+  }
+</style>

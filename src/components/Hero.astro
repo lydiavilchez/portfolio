@@ -1,0 +1,117 @@
+---
+/**
+ * Portada: nombre en grande tipo cabecera de revista,
+ * metadatos en monoespaciada, rol, frase y botones.
+ */
+import { content, links, rich, type Lang } from '../i18n/content';
+
+interface Props {
+  lang: Lang;
+}
+const { lang } = Astro.props;
+const t = content[lang].hero;
+---
+
+<section class="hero container" aria-labelledby="hero-name">
+  <!-- Fila superior de metadatos -->
+  <div class="hero__meta mono reveal">
+    <span>{t.location}</span>
+    <span class="hero__status">
+      <span class="status-dot" aria-hidden="true"></span>
+      {t.status} · {t.remote}
+    </span>
+  </div>
+
+  <!-- Nombre -->
+  <h1 id="hero-name" class="hero__name display lines" aria-label="Lydia Vílchez López">
+    <span class="line" style="--i:0" aria-hidden="true"><span>Lydia</span></span>
+    <span class="line line--indent" style="--i:1" aria-hidden="true"><span>Vílchez</span></span>
+    <span class="line" style="--i:2" aria-hidden="true"><span>López</span></span>
+  </h1>
+
+  <!-- Rol, frase y botones -->
+  <div class="hero__bottom">
+    <p class="hero__role display reveal" style="--delay:.35s" set:html={rich(t.role)} />
+    <div class="hero__side reveal" style="--delay:.5s">
+      <p class="hero__open">{t.openTo}</p>
+      <div class="hero__ctas">
+        <a class="btn btn--primary" href={links.cv} download>
+          {t.ctaCv} <span class="arrow" aria-hidden="true">↓</span>
+        </a>
+        <a class="btn btn--ghost" href="#contacto">
+          {t.ctaContact} <span class="arrow" aria-hidden="true">↗</span>
+        </a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<style>
+  .hero {
+    min-height: 100svh;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    gap: clamp(2rem, 5vw, 4rem);
+    padding-top: calc(4.25rem + clamp(1.5rem, 4vw, 3rem));
+    padding-bottom: clamp(2rem, 5vw, 4rem);
+  }
+
+  .hero__meta {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    gap: 0.5rem 2rem;
+    color: var(--muted);
+  }
+  .hero__status {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.6rem;
+    color: var(--text);
+  }
+
+  .hero__name {
+    font-size: clamp(4rem, 20vw, 15rem);
+    font-weight: 300;
+    line-height: 0.86;
+  }
+  .line--indent {
+    padding-left: 12vw;
+  }
+  /* "Lydia" en cursiva azul: la palabra destacada de la portada */
+  .hero__name .line:first-child > span {
+    font-style: italic;
+    color: var(--accent);
+  }
+
+  .hero__bottom {
+    display: grid;
+    gap: 2rem;
+    align-items: end;
+    border-top: 1px solid var(--line);
+    padding-top: clamp(1.5rem, 3vw, 2.5rem);
+  }
+  @media (min-width: 900px) {
+    .hero__bottom {
+      grid-template-columns: 1.2fr 1fr;
+      gap: 4rem;
+    }
+  }
+
+  .hero__role {
+    font-size: clamp(1.9rem, 4.5vw, 4rem);
+    line-height: 1;
+  }
+
+  .hero__open {
+    max-width: 34ch;
+    color: var(--muted);
+    margin-bottom: 1.75rem;
+  }
+  .hero__ctas {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+  }
+</style>

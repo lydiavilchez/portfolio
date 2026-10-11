@@ -1,0 +1,40 @@
+---
+/**
+ * Página completa (compartida por / y /en/).
+ * El orden de las secciones se cambia aquí.
+ */
+import Base from '../layouts/Base.astro';
+import Header from './Header.astro';
+import Hero from './Hero.astro';
+import About from './About.astro';
+import Experience from './Experience.astro';
+import Projects from './Projects.astro';
+import Recommendations from './Recommendations.astro';
+import Education from './Education.astro';
+import SecurityReport from './SecurityReport.astro';
+import Contact from './Contact.astro';
+import Footer from './Footer.astro';
+import type { Lang } from '../i18n/content';
+
+interface Props {
+  lang: Lang;
+}
+const { lang } = Astro.props;
+---
+
+<Base lang={lang}>
+  <span id="top"></span>
+  <Header lang={lang} />
+  <main id="main">
+    <Hero lang={lang} />
+    <!-- Las secciones alternan fondo oscuro y fondo papel (.band--light) -->
+    <div class="band band--light"><About lang={lang} /></div>
+    <Experience lang={lang} />
+    <div class="band band--light"><Projects lang={lang} /></div>
+    <Recommendations lang={lang} />
+    <div class="band band--light"><Education lang={lang} /></div>
+    <SecurityReport lang={lang} />
+    <Contact lang={lang} />
+  </main>
+  <Footer lang={lang} />
+</Base>

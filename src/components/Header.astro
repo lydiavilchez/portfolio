@@ -1,0 +1,299 @@
+---
+/**
+ * Cabecera fija: iniciales, selector de idioma, acceso a contacto
+ * y botón que abre el menú a pantalla completa (estilo DEPT).
+ */
+import { content, homePath, links, type Lang } from '../i18n/content';
+
+interface Props {
+  lang: Lang;
+}
+const { lang } = Astro.props;
+const t = content[lang];
+const otherLang: Lang = lang === 'es' ? 'en' : 'es';
+---
+
+<a class="skip mono" href="#main">{t.nav.skip}</a>
+
+<header class="header">
+  <div class="header__inner container">
+    <a class="logo" href={homePath[lang]} aria-label="Lydia Vílchez López">
+      L<em>V</em>
+    </a>
+
+    <p class="header__meta mono" aria-hidden="true">{t.hero.headerMeta}</p>
+
+    <div class="header__actions">
+      <!-- Selector de idioma -->
+      <nav class="lang mono" aria-label="Idioma / Language">
+        <a href={homePath.es} hreflang="es" lang="es" aria-current={lang === 'es' ? 'true' : undefined}>ES</a>
+        <span aria-hidden="true">/</span>
+        <a href={homePath.en} hreflang="en" lang="en" aria-current={lang === 'en' ? 'true' : undefined}>EN</a>
+      </nav>
+
+      <a class="header__contact mono" href="#contacto">{t.nav.contact}</a>
+
+      <button
+        class="menu-toggle mono"
+        type="button"
+        aria-expanded="false"
+        aria-controls="site-menu"
+        data-menu-toggle
+        data-open-text={t.nav.menu}
+        data-close-text={t.nav.close}
+      >
+        <span data-menu-label>{t.nav.menu}</span>
+        <span class="menu-toggle__icon" aria-hidden="true"><span></span><span></span></span>
+      </button>
+    </div>
+  </div>
+</header>
+
+<!-- Menú a pantalla completa -->
+<div class="menu" id="site-menu" data-menu>
+  <div class="menu__inner container">
+    <nav aria-label={t.nav.menu}>
+      <ol class="menu__list">
+        {
+          t.nav.items.map((item, i) => (
+            <li style={`--i:${i}`}>
+              <a href={`#${item.id}`}>
+                <span class="mono">{String(i + 1).padStart(2, '0')}</span>
+                <span class="menu__label">{item.label}</span>
+              </a>
+            </li>
+          ))
+        }
+      </ol>
+    </nav>
+
+    <div class="menu__footer mono">
+      <a class="menu__email" href={`mailto:${links.email}`}>{links.email} ↗</a>
+      <a href={links.linkedin} target="_blank" rel="noopener noreferrer">LinkedIn ↗</a>
+      <a href={links.github} target="_blank" rel="noopener noreferrer">GitHub ↗</a>
+      <a href={links.cv} download>{t.hero.ctaCv} ↓</a>
+      <a href={homePath[otherLang]} hreflang={otherLang}>{t.nav.switchTo}</a>
+    </div>
+  </div>
+</div>
+
+<style>
+  .skip {
+    position: fixed;
+    top: 0.5rem;
+    left: 0.5rem;
+    z-index: 100;
+    padding: 0.75rem 1rem;
+    background: var(--accent);
+    color: var(--on-accent);
+    text-decoration: none;
+    transform: translateY(-200%);
+  }
+  .skip:focus {
+    transform: none;
+  }
+
+  .header {
+    position: fixed;
+    inset: 0 0 auto;
+    z-index: 50;
+    background: color-mix(in srgb, var(--bg) 95%, transparent);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border-bottom: 1px solid color-mix(in srgb, var(--line) 60%, transparent);
+  }
+  :global(body.menu-open) .header {
+    background: transparent;
+    backdrop-filter: none;
+    border-color: transparent;
+  }
+  .header__inner {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    height: 4.25rem;
+  }
+
+  .logo {
+    font-family: var(--font-display);
+    font-variation-settings: 'opsz' 144;
+    font-size: 1.6rem;
+    font-weight: 400;
+    text-decoration: none;
+    letter-spacing: -0.02em;
+  }
+  .logo em {
+    font-style: italic;
+    color: var(--accent);
+  }
+
+  .header__meta {
+    color: var(--muted);
+    display: none;
+  }
+  @media (min-width: 900px) {
+    .header__meta {
+      display: block;
+    }
+  }
+
+  .header__actions {
+    display: flex;
+    align-items: center;
+    gap: clamp(1rem, 3vw, 2rem);
+  }
+
+  .lang {
+    display: flex;
+    gap: 0.4rem;
+    color: var(--muted);
+  }
+  .lang a {
+    text-decoration: none;
+    transition: color 0.2s;
+  }
+  .lang a:hover,
+  .lang a[aria-current='true'] {
+    color: var(--accent);
+  }
+
+  .header__contact {
+    display: none;
+    text-decoration: none;
+    transition: color 0.2s;
+  }
+  .header__contact:hover {
+    color: var(--accent);
+  }
+  @media (min-width: 640px) {
+    .header__contact {
+      display: block;
+    }
+  }
+
+  .menu-toggle {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    min-height: 44px;
+    position: relative;
+    z-index: 60;
+  }
+  .menu-toggle__icon {
+    display: grid;
+    gap: 6px;
+    width: 26px;
+  }
+  .menu-toggle__icon span {
+    display: block;
+    height: 1.5px;
+    background: currentColor;
+    transition: transform 0.4s var(--ease);
+  }
+  .menu-toggle[aria-expanded='true'] .menu-toggle__icon span:first-child {
+    transform: translateY(3.75px) rotate(45deg);
+  }
+  .menu-toggle[aria-expanded='true'] .menu-toggle__icon span:last-child {
+    transform: translateY(-3.75px) rotate(-45deg);
+  }
+
+  /* ---------- Menú a pantalla completa ---------- */
+  .menu {
+    position: fixed;
+    inset: 0;
+    z-index: 40;
+    background: var(--surface);
+    clip-path: inset(0 0 100% 0);
+    visibility: hidden;
+    transition:
+      clip-path 0.8s var(--ease),
+      visibility 0s linear 0.8s;
+    overflow-y: auto;
+  }
+  .menu[data-open] {
+    clip-path: inset(0 0 0 0);
+    visibility: visible;
+    transition:
+      clip-path 0.8s var(--ease),
+      visibility 0s;
+  }
+  .menu__inner {
+    min-height: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    gap: 3rem;
+    padding-top: 7rem;
+    padding-bottom: 2rem;
+  }
+  .menu__list li {
+    border-bottom: 1px solid var(--line);
+    opacity: 0;
+    transform: translateY(30px);
+    transition:
+      opacity 0.6s var(--ease),
+      transform 0.6s var(--ease);
+  }
+  .menu[data-open] .menu__list li {
+    opacity: 1;
+    transform: none;
+    transition-delay: calc(0.25s + var(--i) * 0.06s);
+  }
+  .menu__list a {
+    display: flex;
+    align-items: baseline;
+    gap: clamp(1rem, 3vw, 2.5rem);
+    padding-block: 0.6rem;
+    text-decoration: none;
+  }
+  .menu__list .mono {
+    color: var(--accent);
+  }
+  .menu__label {
+    font-family: var(--font-display);
+    font-variation-settings: 'opsz' 144;
+    font-weight: 350;
+    font-size: clamp(1.6rem, 8.5vw, 7rem);
+    line-height: 1;
+    text-transform: uppercase;
+    letter-spacing: -0.02em;
+    transition:
+      color 0.3s,
+      transform 0.5s var(--ease);
+  }
+  .menu__list a:hover .menu__label,
+  .menu__list a:focus-visible .menu__label {
+    color: var(--accent);
+    font-style: italic;
+    transform: translateX(0.15em);
+  }
+
+  .menu__footer {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem 2rem;
+    color: var(--muted);
+  }
+  .menu__footer .menu__email {
+    text-transform: none; /* el correo, tal cual */
+  }
+  .menu__footer a {
+    text-decoration: none;
+    transition: color 0.2s;
+  }
+  .menu__footer a:hover {
+    color: var(--accent);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .menu,
+    .menu[data-open] {
+      transition: none;
+    }
+    .menu__list li {
+      opacity: 1;
+      transform: none;
+    }
+  }
+</style>

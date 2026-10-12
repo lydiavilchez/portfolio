@@ -31,9 +31,13 @@ src/styles/        Paleta, tipografía y estilos compartidos
 | `npm run preview` | Sirve `dist/` para revisarla antes de publicar |
 | `npm run og`      | Regenera `og-image.png` y `apple-touch-icon.png` (macOS + Chrome) |
 
-## Cloudflare Pages
+## Publicación (Cloudflare Workers)
 
-- Framework preset: **Astro**
+Web: https://lydiavilchez.lydiavilchezlopez.workers.dev
+
+Cada push a `main` se publica solo. Configuración en Cloudflare:
 - Build command: `npm run build`
-- Build output directory: `dist`
-- Variable de entorno: `NODE_VERSION` = `22`
+- Deploy command: `npx wrangler deploy` (lee `wrangler.jsonc`, que sirve la carpeta `dist`)
+- Variable: `NODE_VERSION` = `22`
+
+Si cambias la URL (por ejemplo, con un dominio propio), actualiza `site` en `astro.config.mjs`.

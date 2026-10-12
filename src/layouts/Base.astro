@@ -71,8 +71,14 @@ const jsonLd = {
 
     <script type="application/ld+json" set:html={JSON.stringify(jsonLd)} />
 
-    <!-- Marca que hay JS antes de pintar, para que las animaciones no parpadeen -->
-    <script is:inline>document.documentElement.classList.add('js');</script>
+    <!-- Fuerza HTTPS (workers.dev también responde por http://) y marca que hay JS
+         antes de pintar, para que las animaciones no parpadeen -->
+    <script is:inline>
+      if (location.protocol === 'http:' && location.hostname !== 'localhost') {
+        location.replace('https:' + location.href.slice(5));
+      }
+      document.documentElement.classList.add('js');
+    </script>
   </head>
   <body>
     <slot />

@@ -1,0 +1,10 @@
+// Configuración para publicar en Cloudflare (Workers con archivos estáticos).
+// La web es estática: Astro la genera en ./dist y Cloudflare la sirve tal cual.
+{
+  "name": "lydiavilchez",
+  "compatibility_date": "2026-10-01",
+  "assets": {
+    "directory": "./dist",
+    "not_found_handling": "404-page"
+  }
+}

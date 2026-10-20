@@ -1,5 +1,6 @@
 # Cabeceras HTTP de Cloudflare (Workers Static Assets).
 # CVs adaptados por candidatura: accesibles por enlace directo, pero fuera de buscadores.
+# (El Content-Type application/pdf lo pone Cloudflare solo por la extensión .pdf;
+#  no se fuerza aquí para que una URL mal escrita muestre la página 404 normal.)
 /cv/*
   X-Robots-Tag: noindex, nofollow, noarchive
-  Content-Type: application/pdf

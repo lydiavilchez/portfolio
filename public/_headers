@@ -1,0 +1,5 @@
+# Cabeceras HTTP de Cloudflare (Workers Static Assets).
+# CVs adaptados por candidatura: accesibles por enlace directo, pero fuera de buscadores.
+/cv/*
+  X-Robots-Tag: noindex, nofollow, noarchive
+  Content-Type: application/pdf

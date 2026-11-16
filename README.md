@@ -1,6 +1,6 @@
 # Lydia Vílchez López — Portfolio
 
-Web personal hecha con [Astro](https://astro.build), publicada en Cloudflare Pages.
+Web personal hecha con [Astro](https://astro.build), publicada en Cloudflare Workers.
 
 ## Editar textos
 
@@ -33,7 +33,7 @@ src/styles/        Paleta, tipografía y estilos compartidos
 
 ## Publicación (Cloudflare Workers)
 
-Web: https://lydiavilchez.lydiavilchezlopez.workers.dev
+Web: https://lydiavilchez.com
 
 Cada push a `main` se publica solo. Configuración en Cloudflare:
 - Build command: `npm run build`
@@ -41,3 +41,5 @@ Cada push a `main` se publica solo. Configuración en Cloudflare:
 - Variable: `NODE_VERSION` = `22`
 
 Si cambias la URL (por ejemplo, con un dominio propio), actualiza `site` en `astro.config.mjs`.
+
+CI (GitHub Actions): en cada PR y push a `main` se ejecutan `npm ci`, `npm run build`, `npm audit` y Gitleaks.

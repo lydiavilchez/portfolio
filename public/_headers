@@ -4,3 +4,23 @@
 #  no se fuerza aquí para que una URL mal escrita muestre la página 404 normal.)
 /cv/*
   X-Robots-Tag: noindex, nofollow, noarchive
+
+# Cabeceras de seguridad para toda la web.
+# HSTS sin "preload" por ahora (la lista de precarga es difícil de revertir).
+# Content-Security-Policy: PENDIENTE a propósito. El HTML tiene 3 scripts inline
+# (JSON-LD, la redirección a HTTPS + clase "js" en Base.astro, y el módulo que Astro
+# incrusta con src/scripts/main.ts) y muchos atributos style="--i:…" inline. Una CSP
+# estricta los bloquearía; hay que añadirla con hashes (o mover los scripts a archivos)
+# y probarla antes de activarla.
+/*
+  Strict-Transport-Security: max-age=31536000; includeSubDomains
+  X-Content-Type-Options: nosniff
+  Referrer-Policy: strict-origin-when-cross-origin
+  X-Frame-Options: DENY
+  Permissions-Policy: camera=(), microphone=(), geolocation=(), payment=(), usb=()
+  Cross-Origin-Opener-Policy: same-origin
+
+# CSS/JS generados por Astro: llevan hash en el nombre, así que nunca cambian.
+# /fonts/* NO se marca como immutable: sus nombres no llevan hash.
+/_astro/*
+  Cache-Control: public, max-age=31536000, immutable

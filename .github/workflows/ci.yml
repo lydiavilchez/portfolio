@@ -1,0 +1,49 @@
+# CI: compila la web, audita dependencias y busca secretos.
+# Las actions van fijadas por SHA completo (el tag está en el comentario).
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+  # Gitleaks solo revisa el historial completo en ejecuciones manuales o
+  # programadas; en push/pull_request revisa únicamente los commits nuevos.
+  workflow_dispatch:
+  schedule:
+    - cron: "0 6 * * 1" # lunes a las 06:00 UTC
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    name: Build y auditoría
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+
+      - run: npm ci
+      - run: npm run build
+      - run: npm audit --audit-level=moderate
+
+  gitleaks:
+    name: Gitleaks (secretos)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0 # historial completo
+          persist-credentials: false
+
+      - uses: gitleaks/gitleaks-action@e0c47f4f8be36e29cdc102c57e68cb5cbf0e8d1e # v3.0.0
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          # Sin comentarios en los PR: así el job no necesita permisos de escritura.
+          GITLEAKS_ENABLE_COMMENTS: false

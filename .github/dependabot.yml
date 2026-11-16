@@ -1,0 +1,19 @@
+# Actualizaciones semanales de dependencias. Las minor y patch llegan agrupadas
+# en un solo PR; las major, por separado para revisarlas con calma.
+version: 2
+updates:
+  - package-ecosystem: npm
+    directory: "/"
+    schedule:
+      interval: weekly
+    groups:
+      npm-minor-patch:
+        update-types: [minor, patch]
+
+  - package-ecosystem: github-actions
+    directory: "/"
+    schedule:
+      interval: weekly
+    groups:
+      actions-minor-patch:
+        update-types: [minor, patch]

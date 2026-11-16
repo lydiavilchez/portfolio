@@ -13,6 +13,7 @@
     "og": "node scripts/generate-og.mjs"
   },
   "dependencies": {
+    "@astrojs/sitemap": "3.7.5",
     "astro": "^7.3.7"
   }
 }

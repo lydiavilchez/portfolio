@@ -1,0 +1,7 @@
+# Todo indexable salvo los CVs adaptados por candidatura (/cv/), que además
+# llevan X-Robots-Tag: noindex (ver public/_headers).
+User-agent: *
+Allow: /
+Disallow: /cv/
+
+Sitemap: https://lydiavilchez.com/sitemap-index.xml
